@@ -1,24 +1,37 @@
-// SDL for graphics
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 
-// Json parsing
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-// IO
 #include <iostream>
 #include <fstream>
 
-// Math
 #include <math.h>
+#include <vector>
+
+struct Mesh {
+    std::vector<short> points;
+    std::vector<short> indicies;
+    std::string type;
+
+    Mesh(std::vector<short> points, std::vector<short> indicies, std::string type) {
+        this -> points = points;
+        this -> indicies = indicies;
+
+        this -> type = type;
+    }
+};
 
 const short FOV = 94;
 const float PI = 3.1415;
 
 int main(int argc, char* argv[]) {
-    short x_coords[] = {400, 500, 300};
-    short y_coords[] = {200, 400, 400};
+    std::ifstream settings_file("data/settings.json");
+    json settings = json::parse(settings_file);
+
+    short x_coords[3];
+    short y_coords[3];
     int num_points = 3;
 
     short points3d[3][3] = {
