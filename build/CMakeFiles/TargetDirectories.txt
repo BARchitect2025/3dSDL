@@ -1,0 +1,3 @@
+/home/barchitect/Desktop/Programming/3dSDL/build/CMakeFiles/MySDLGame.dir
+/home/barchitect/Desktop/Programming/3dSDL/build/CMakeFiles/edit_cache.dir
+/home/barchitect/Desktop/Programming/3dSDL/build/CMakeFiles/rebuild_cache.dir
