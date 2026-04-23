@@ -15,7 +15,13 @@ struct Mesh {
     std::vector<std::vector<std::vector<short>>> indices;
     std::string type;
 
-    Mesh(std::vector<std::vector<short>> points, std::vector<std::vector<std::vector<short>>> indices, std::string type) {
+    Mesh(std::vector<std::vector<short>> points, std::vector<std::vector<std::vector<short>>> indices, std::string type, short x_offset, short y_offset, short z_offset) {
+        for (int i = 0; i < points.size(); i++) {
+            points[i][0] += x_offset;
+            points[i][1] += y_offset;
+            points[i][2] += z_offset;
+        }
+
         this -> points = points;
         this -> indices = indices;
 
@@ -46,7 +52,7 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < 24; i++) {
         for (int j = 0; j < 24; j++) {
-            Mesh block = Mesh(floor_points, floor_indices, floor_data["type"]);
+            Mesh block = Mesh(floor_points, floor_indices, floor_data["type"], 400 * j, 0, -400 * i);
             objects.push_back(block);
         }
     }
