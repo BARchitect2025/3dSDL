@@ -11,13 +11,13 @@ using json = nlohmann::json;
 #include <vector>
 
 struct Mesh {
-    std::vector<short> points;
-    std::vector<short> indicies;
+    std::vector<std::vector<short>> points;
+    std::vector<std::vector<std::vector<short>>> indices;
     std::string type;
 
-    Mesh(std::vector<short> points, std::vector<short> indicies, std::string type) {
+    Mesh(std::vector<std::vector<short>> points, std::vector<std::vector<std::vector<short>>> indices, std::string type) {
         this -> points = points;
-        this -> indicies = indicies;
+        this -> indices = indices;
 
         this -> type = type;
     }
@@ -33,6 +33,23 @@ int main(int argc, char* argv[]) {
     json settings = json::parse(settings_file);
     
     short draw_dist = settings["draw_dist"];
+
+    settings_file.close();
+
+    std::ifstream floor_file("data/floor.json");
+    json floor_data = json::parse(floor_file);
+
+    floor_file.close();
+
+    std::vector<std::vector<short>> floor_points = floor_data["points"];
+    std::vector<std::vector<std::vector<short>>> floor_indices = floor_data["indices"];
+
+    for (int i = 0; i < 24; i++) {
+        for (int j = 0; j < 24; j++) {
+            Mesh block = Mesh(floor_points, floor_indices, floor_data["type"]);
+            objects.push_back(block);
+        }
+    }
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -66,18 +83,29 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
         SDL_RenderClear(renderer);
 
-        for (Mesh obj: objects) {
-            std::vector<short> tri_draw_data;
+        std::vector<std::vector<std::vector<short>>> draw_data;
 
-            for (int i = 0; i < sizeof(obj.indicies) / 3; i++) {
+        for (Mesh obj: objects) {
+            for (int i = 0; i < obj.indices.size(); i++) {
+                std::vector<std::vector<short>> draw(2);
+
                 for (int j = 0; j < 3; j++) {
-                    short drawX = obj.points[obj.indicies[i][j]] * (focal_length / v_rel[2]) + width / 2;
+                    std::vector<short> v_rel = obj.points[obj.indices[i][0][j]];
+
+                    short drawX = v_rel[0] * (focal_length / v_rel[2]) + width / 2;
                     short drawY = v_rel[1] * (focal_length / v_rel[2]) + height / 2;
+
+                    draw[0].push_back(drawX);
+                    draw[1].push_back(drawY);
                 }
+
+                draw_data.push_back(draw);
             }
         }
 
-        filledPolygonRGBA(renderer, x_coords, y_coords, 3, 255, 0, 255, 255);
+        for (std::vector<std::vector<short>> data: draw_data) {
+            filledPolygonRGBA(renderer, data[0].data(), data[1].data(), 3, 255, 120, 80, 255);
+        }
 
         SDL_RenderPresent(renderer);
     }
