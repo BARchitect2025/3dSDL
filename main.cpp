@@ -27,18 +27,12 @@ const short FOV = 94;
 const float PI = 3.1415;
 
 int main(int argc, char* argv[]) {
+    std::vector<Mesh> objects;
+
     std::ifstream settings_file("data/settings.json");
     json settings = json::parse(settings_file);
-
-    short x_coords[3];
-    short y_coords[3];
-    int num_points = 3;
-
-    short points3d[3][3] = {
-        {800, 400, 800},
-        {600, 400, 800},
-        {800, 200, 800}
-    };
+    
+    short draw_dist = settings["draw_dist"];
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -72,13 +66,16 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
         SDL_RenderClear(renderer);
 
-        x_coords[0] = points3d[0][0] * (focal_length / points3d[0][2]) + width / 2;
-        x_coords[1] = points3d[1][0] * (focal_length / points3d[1][2]) + width / 2;
-        x_coords[2] = points3d[2][0] * (focal_length / points3d[1][2]) + width / 2;
-        
-        y_coords[0] = points3d[0][1] * (focal_length / points3d[0][2]) + height / 2;
-        y_coords[1] = points3d[1][1] * (focal_length / points3d[1][2]) + height / 2;
-        y_coords[2] = points3d[2][1] * (focal_length / points3d[1][2]) + height / 2;
+        for (Mesh obj: objects) {
+            std::vector<short> tri_draw_data;
+
+            for (int i = 0; i < sizeof(obj.indicies) / 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    short drawX = obj.points[obj.indicies[i][j]] * (focal_length / v_rel[2]) + width / 2;
+                    short drawY = v_rel[1] * (focal_length / v_rel[2]) + height / 2;
+                }
+            }
+        }
 
         filledPolygonRGBA(renderer, x_coords, y_coords, 3, 255, 0, 255, 255);
 

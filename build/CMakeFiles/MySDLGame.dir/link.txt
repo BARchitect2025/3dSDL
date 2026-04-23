@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/MySDLGame.dir/main.cpp.o -o MySDLGame  /usr/lib/x86_64-linux-gnu/libSDL2.so -lSDL2_gfx 
+/usr/bin/g++ CMakeFiles/MySDLGame.dir/main.cpp.o -o MySDLGame  /usr/lib/x86_64-linux-gnu/libSDL2.so -lSDL2_gfx 
