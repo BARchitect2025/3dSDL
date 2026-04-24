@@ -35,6 +35,7 @@ const float PI = 3.1415;
 int main(int argc, char* argv[]) {
     std::vector<Mesh> objects;
 
+    // Input settings and model files
     std::ifstream settings_file("data/settings.json");
     json settings = json::parse(settings_file);
     
@@ -47,12 +48,19 @@ int main(int argc, char* argv[]) {
 
     floor_file.close();
 
+    std::ifstream dark_floor_file("data/dark_floor.json");
+    json dark_floor_data = json::parse(dark_floor_file);
+
+    dark_floor_file.close();
+
+    // Get points and indices from the files that were input
     std::vector<std::vector<short>> floor_points = floor_data["points"];
     std::vector<std::vector<std::vector<short>>> floor_indices = floor_data["indices"];
+    std::vector<std::vector<std::vector<short>>> dark_floor_indices = dark_floor_data["indices"];
 
     for (int i = 0; i < 24; i++) {
         for (int j = 0; j < 24; j++) {
-            Mesh block = Mesh(floor_points, floor_indices, floor_data["type"], 400 * j, 0, -400 * i);
+            Mesh block = (((i + j) % 2 == 0)? (Mesh(floor_points, floor_indices, floor_data["type"], 400 * j, 0, -400 * i)): (Mesh(floor_points, dark_floor_indices, floor_data["type"], 400 * j, 0, -400 * i)));
             objects.push_back(block);
         }
     }
@@ -93,24 +101,31 @@ int main(int argc, char* argv[]) {
 
         for (Mesh obj: objects) {
             for (int i = 0; i < obj.indices.size(); i++) {
-                std::vector<std::vector<short>> draw(2);
+                std::vector<std::vector<short>> draw(3);
 
                 for (int j = 0; j < 3; j++) {
                     std::vector<short> v_rel = obj.points[obj.indices[i][0][j]];
 
-                    short drawX = v_rel[0] * (focal_length / v_rel[2]) + width / 2;
-                    short drawY = v_rel[1] * (focal_length / v_rel[2]) + height / 2;
+                    if (v_rel[2] > 10) {
+                        short drawX = v_rel[0] * (focal_length / v_rel[2]) + width / 2;
+                        short drawY = v_rel[1] * (focal_length / v_rel[2]) + height / 2;
 
-                    draw[0].push_back(drawX);
-                    draw[1].push_back(drawY);
+                        draw[0].push_back(drawX);
+                        draw[1].push_back(drawY);
+                        draw[2].push_back(obj.indices[i][1][j]);
+                    } else {
+                        break;
+                    }
                 }
 
-                draw_data.push_back(draw);
+                if (draw[0].size() == 3) {
+                    draw_data.push_back(draw);
+                }
             }
         }
 
         for (std::vector<std::vector<short>> data: draw_data) {
-            filledPolygonRGBA(renderer, data[0].data(), data[1].data(), 3, 255, 120, 80, 255);
+            filledPolygonRGBA(renderer, data[0].data(), data[1].data(), 3, data[2][0], data[2][1], data[2][2], 255);
         }
 
         SDL_RenderPresent(renderer);
