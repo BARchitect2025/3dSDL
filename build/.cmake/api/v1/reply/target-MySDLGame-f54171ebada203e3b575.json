@@ -25,13 +25,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 10,
+				"line" : 7,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 13,
+				"line" : 9,
 				"parent" : 0
 			}
 		]
@@ -71,6 +71,11 @@
 			{
 				"backtrace" : 2,
 				"fragment" : "-lSDL2_gfx",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lSDL2_ttf",
 				"role" : "libraries"
 			}
 		],

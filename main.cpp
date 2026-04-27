@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -9,13 +10,17 @@ using json = nlohmann::json;
 
 #include <math.h>
 #include <vector>
+#include <eigen3/Eigen/Dense>
+
+using namespace std;
+using namespace Eigen;
 
 struct Mesh {
-    std::vector<std::vector<short>> points;
-    std::vector<std::vector<std::vector<short>>> indices;
-    std::string type;
+    vector<vector<double>> points;
+    vector<vector<vector<double>>> indices;
+    string type;
 
-    Mesh(std::vector<std::vector<short>> points, std::vector<std::vector<std::vector<short>>> indices, std::string type, short x_offset, short y_offset, short z_offset) {
+    Mesh(vector<vector<double>> points, vector<vector<vector<double>>> indices, string type, double x_offset, double y_offset, double z_offset) {
         for (int i = 0; i < points.size(); i++) {
             points[i][0] += x_offset;
             points[i][1] += y_offset;
@@ -32,31 +37,38 @@ struct Mesh {
 const short FOV = 94;
 const float PI = 3.1415;
 
+const double speed = 800.0;
+
 int main(int argc, char* argv[]) {
-    std::vector<Mesh> objects;
+    MatrixXd player_pos(1, 3);
+    player_pos(0, 0) = 0;
+    player_pos(0, 1) = 0;
+    player_pos(0, 2) = 0;
+
+    vector<Mesh> objects;
 
     // Input settings and model files
-    std::ifstream settings_file("data/settings.json");
+    ifstream settings_file("data/settings.json");
     json settings = json::parse(settings_file);
     
     short draw_dist = settings["draw_dist"];
 
     settings_file.close();
 
-    std::ifstream floor_file("data/floor.json");
+    ifstream floor_file("data/floor.json");
     json floor_data = json::parse(floor_file);
 
     floor_file.close();
 
-    std::ifstream dark_floor_file("data/dark_floor.json");
+    ifstream dark_floor_file("data/dark_floor.json");
     json dark_floor_data = json::parse(dark_floor_file);
 
     dark_floor_file.close();
 
     // Get points and indices from the files that were input
-    std::vector<std::vector<short>> floor_points = floor_data["points"];
-    std::vector<std::vector<std::vector<short>>> floor_indices = floor_data["indices"];
-    std::vector<std::vector<std::vector<short>>> dark_floor_indices = dark_floor_data["indices"];
+    vector<vector<double>> floor_points = floor_data["points"];
+    vector<vector<vector<double>>> floor_indices = floor_data["indices"];
+    vector<vector<vector<double>>> dark_floor_indices = dark_floor_data["indices"];
 
     for (int i = 0; i < 24; i++) {
         for (int j = 0; j < 24; j++) {
@@ -67,12 +79,23 @@ int main(int argc, char* argv[]) {
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << endl;
         return 1;
     }
 
     SDL_Window* window = SDL_CreateWindow("3dSDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28);
+    if (!font) std::cout << "Font error: " << TTF_GetError() << std::endl;
+
+    SDL_Color color = {255, 255, 255, 255}; // White
+    SDL_Surface* surface = TTF_RenderText_Solid(font, "Hello SDL2", color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    
+    SDL_Rect dstRect = {100, 100, surface->w, surface->h}; // Position
+
+    SDL_FreeSurface(surface);
 
     int width, height;
     SDL_GetWindowSize(window, &width, &height);
@@ -81,13 +104,22 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
 
+    Uint64 LAST = 0;
+    Uint64 NOW = SDL_GetPerformanceCounter();
+    double delta = 0;
+
     while (running) {
+        LAST = NOW;
+        NOW = SDL_GetPerformanceCounter();
+        delta = (double) (NOW - LAST) / (double) SDL_GetPerformanceFrequency();
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             } else if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                     case SDLK_ESCAPE: running = false;
+                    case SDLK_w: player_pos(0, 2) += speed * delta;
                 }
             }
         }
@@ -97,18 +129,21 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
         SDL_RenderClear(renderer);
 
-        std::vector<std::vector<std::vector<short>>> draw_data;
+        vector<vector<vector<short>>> draw_data;
 
         for (Mesh obj: objects) {
             for (int i = 0; i < obj.indices.size(); i++) {
-                std::vector<std::vector<short>> draw(3);
+                vector<vector<short>> draw(3);
 
                 for (int j = 0; j < 3; j++) {
-                    std::vector<short> v_rel = obj.points[obj.indices[i][0][j]];
+                    MatrixXd v_rel(1, 3);
+                    v_rel(0, 0) = obj.points[obj.indices[i][0][j]][0] - player_pos(0, 0);
+                    v_rel(0, 1) = obj.points[obj.indices[i][0][j]][1] - player_pos(0, 1);
+                    v_rel(0, 2) = obj.points[obj.indices[i][0][j]][2] - player_pos(0, 2);
 
-                    if (v_rel[2] > 10) {
-                        short drawX = v_rel[0] * (focal_length / v_rel[2]) + width / 2;
-                        short drawY = v_rel[1] * (focal_length / v_rel[2]) + height / 2;
+                    if (v_rel(0, 2) > 10) {
+                        short drawX = v_rel(0, 0) * (focal_length / v_rel(0, 2)) + width / 2.0f;
+                        short drawY = v_rel(0, 1) * (focal_length / v_rel(0, 2)) + height / 2.0f;
 
                         draw[0].push_back(drawX);
                         draw[1].push_back(drawY);
@@ -124,15 +159,20 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        for (std::vector<std::vector<short>> data: draw_data) {
+        for (vector<vector<short>> data: draw_data) {
             filledPolygonRGBA(renderer, data[0].data(), data[1].data(), 3, data[2][0], data[2][1], data[2][2], 255);
         }
+
+        SDL_RenderCopy(renderer, texture, NULL, &dstRect);
 
         SDL_RenderPresent(renderer);
     }
 
+    SDL_DestroyTexture(texture);
+    TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_Quit();
     SDL_Quit();
     return 0;
 }
