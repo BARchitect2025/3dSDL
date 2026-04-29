@@ -83,6 +83,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    TTF_Init();
+
     SDL_Window* window = SDL_CreateWindow("3dSDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -104,25 +106,28 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
 
-    Uint64 LAST = 0;
-    Uint64 NOW = SDL_GetPerformanceCounter();
-    double delta = 0;
+    Uint32 last_time = 0;
+    float delta = 0.0f;
 
     while (running) {
-        LAST = NOW;
-        NOW = SDL_GetPerformanceCounter();
-        delta = (double) (NOW - LAST) / (double) SDL_GetPerformanceFrequency();
+        Uint32 current_time = SDL_GetTicks();
+
+        delta = (current_time - last_time) / 1000.0f;
+        last_time = current_time;
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             } else if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE: running = false;
-                    case SDLK_w: player_pos(0, 2) += speed * delta;
-                }
+                if (event.key.keysym.sym == SDLK_ESCAPE) running = false;
+                if (event.key.keysym.sym == SDLK_w) player_pos(0, 2) += speed * delta;
+                if (event.key.keysym.sym == SDLK_s) player_pos(0, 2) -= speed * delta;
+                if (event.key.keysym.sym == SDLK_a) player_pos(0, 0) -= speed * delta;
+                if (event.key.keysym.sym == SDLK_d) player_pos(0, 0) += speed * delta;
             }
         }
+
+        std::cout << (1.0f / delta) << endl;
 
         float focal_length = (width / 2.0f) / tan((FOV / 2.0f) * (PI / 180.0f));
 

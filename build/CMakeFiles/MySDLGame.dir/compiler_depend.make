@@ -49,6 +49,7 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
   /usr/include/SDL2/SDL_thread.h \
   /usr/include/SDL2/SDL_timer.h \
   /usr/include/SDL2/SDL_touch.h \
+  /usr/include/SDL2/SDL_ttf.h \
   /usr/include/SDL2/SDL_version.h \
   /usr/include/SDL2/SDL_video.h \
   /usr/include/SDL2/begin_code.h \
@@ -882,6 +883,8 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 
 /usr/include/x86_64-linux-gnu/bits/time.h:
 
+/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
+
 /usr/include/eigen3/Eigen/src/Core/ReturnByValue.h:
 
 /usr/include/ctype.h:
@@ -895,10 +898,6 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 /usr/include/c++/13/bits/nested_exception.h:
 
 /usr/include/eigen3/Eigen/src/Core/DiagonalMatrix.h:
-
-/usr/include/eigen3/Eigen/Eigenvalues:
-
-/usr/include/c++/13/bits/hashtable.h:
 
 /usr/include/c++/13/tr1/modified_bessel_func.tcc:
 
@@ -1006,12 +1005,6 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 
 /usr/include/c++/13/codecvt:
 
-/usr/include/c++/13/climits:
-
-/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
-
-/usr/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h:
-
 /usr/include/eigen3/Eigen/src/Core/CoreEvaluators.h:
 
 /usr/include/c++/13/tr1/gamma.tcc:
@@ -1114,6 +1107,10 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 
 /usr/include/c++/13/bits/shared_ptr.h:
 
+/usr/include/c++/13/bits/quoted_string.h:
+
+/usr/include/nlohmann/detail/iterators/iterator_traits.hpp:
+
 /usr/include/c++/13/bits/stl_iterator_base_funcs.h:
 
 /usr/include/eigen3/Eigen/src/Core/BandMatrix.h:
@@ -1123,8 +1120,6 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 /usr/include/asm-generic/errno.h:
 
 /usr/include/alloca.h:
-
-/usr/include/c++/13/array:
 
 /usr/include/SDL2/SDL_timer.h:
 
@@ -1222,6 +1217,8 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 
 /usr/include/eigen3/Eigen/Cholesky:
 
+/usr/include/c++/13/array:
+
 /usr/include/c++/13/bits/stl_vector.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/13/include/avx512dqintrin.h:
@@ -1267,6 +1264,18 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 /usr/include/SDL2/SDL.h:
 
 /usr/include/c++/13/bits/locale_facets.h:
+
+/usr/include/c++/13/climits:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h:
+
+/usr/include/SDL2/SDL_ttf.h:
+
+/usr/include/inttypes.h:
+
+/usr/include/c++/13/bits/ptr_traits.h:
 
 /home/barchitect/Desktop/Programming/3dSDL/main.cpp:
 
@@ -1333,6 +1342,10 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 /usr/include/stdio.h:
 
 /usr/include/SDL2/SDL_keyboard.h:
+
+/usr/include/c++/13/bits/hashtable.h:
+
+/usr/include/eigen3/Eigen/Eigenvalues:
 
 /usr/include/c++/13/tr1/legendre_function.tcc:
 
@@ -1597,12 +1610,6 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 /usr/include/c++/13/bits/hash_bytes.h:
 
 /usr/include/eigen3/Eigen/src/Core/Inverse.h:
-
-/usr/include/c++/13/bits/ptr_traits.h:
-
-/usr/include/c++/13/bits/quoted_string.h:
-
-/usr/include/nlohmann/detail/iterators/iterator_traits.hpp:
 
 /usr/include/eigen3/Eigen/src/Core/MathFunctionsImpl.h:
 
@@ -1968,8 +1975,6 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 
 /usr/include/features.h:
 
-/usr/include/inttypes.h:
-
 /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
 
 /usr/include/libintl.h:
@@ -2103,5 +2108,3 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: /home/barchitect/Desktop/Programming/3dSDL/
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
 /usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
-
-/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
