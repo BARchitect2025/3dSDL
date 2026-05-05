@@ -12,6 +12,7 @@ using json = nlohmann::json;
 #include <math.h>
 #include <vector>
 #include <eigen3/Eigen/Dense>
+#include <algorithm>
 
 using namespace std;
 using namespace Eigen;
@@ -173,23 +174,35 @@ int main(int argc, char* argv[]) {
         if (keyboard[SDL_SCANCODE_ESCAPE]) running = false;
 
         float yaw = player_rotation(0, 1);
-        MatrixXd forward = np.array([math.sin(yaw), 0, math.cos(yaw)], dtype=float);
-        MatrixXd right = np.array([math.cos(yaw), 0, -math.sin(yaw)], dtype=float);
+        MatrixXd forward(1, 3);
+        MatrixXd right(1, 3);
 
-        if (keyboard[SDL_SCANCODE_W]) move(0, 2) += speed * delta;
-        if (keyboard[SDL_SCANCODE_S]) move(0, 2) -= speed * delta;
-        if (keyboard[SDL_SCANCODE_A]) move(0, 0) -= speed * delta;
-        if (keyboard[SDL_SCANCODE_D]) move(0, 0) += speed * delta;
+        forward(0, 0) = sin(yaw);
+        forward(0, 1) = 0;
+        forward(0, 2) = cos(yaw);
+
+        right(0, 0) = cos(yaw);
+        right(0, 1) = 0;
+        right(0, 2) = -sin(yaw);
+
+        if (keyboard[SDL_SCANCODE_W]) move += forward;
+        if (keyboard[SDL_SCANCODE_S]) move -= forward;
+        if (keyboard[SDL_SCANCODE_A]) move -= right;
+        if (keyboard[SDL_SCANCODE_D]) move += right;
+
+        player_pos += move * delta * speed;
+        if (!(player_pos(0, 0) > -4800 && player_pos(0, 0) < 4800 && player_pos(0, 2) > -4800 && player_pos(0, 2) < 4800)) {
+            player_pos -= move * delta * speed;
+        }
 
         if (keyboard[SDL_SCANCODE_LEFT]) player_rotation(0, 1) -= rotation_speed * delta;
         if (keyboard[SDL_SCANCODE_RIGHT]) player_rotation(0, 1) += rotation_speed * delta;
         if (keyboard[SDL_SCANCODE_UP]) player_rotation(0, 0) += rotation_speed * delta;
         if (keyboard[SDL_SCANCODE_DOWN]) player_rotation(0, 0) -= rotation_speed * delta;
 
-        player_pos += move;
-        if (!(player_pos(0, 0) > -4800 && player_pos(0, 0) < 4800 && player_pos(0, 2) > -4800 && player_pos(0, 2) < 4800)) {
-            player_pos -= move;
-        }
+        double max_pitch = 89.0 * (PI / 180.0);
+
+        player_rotation(0, 0) = clamp(player_rotation(0, 0), -max_pitch, max_pitch);
 
         cout << (1.0f / delta) << endl;
 
