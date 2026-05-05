@@ -214,9 +214,9 @@ CMakeFiles/MySDLGame.dir/main.cpp.o: \
  /usr/include/SDL2/SDL_timer.h /usr/include/SDL2/SDL_version.h \
  /usr/include/SDL2/SDL_locale.h /usr/include/SDL2/SDL_misc.h \
  /usr/include/SDL2/SDL2_gfxPrimitives.h /usr/include/SDL2/SDL.h \
- /usr/include/SDL2/SDL_ttf.h /usr/include/nlohmann/json.hpp \
- /usr/include/c++/11/algorithm /usr/include/c++/11/utility \
- /usr/include/c++/11/bits/stl_relops.h \
+ /usr/include/SDL2/SDL2_framerate.h /usr/include/SDL2/SDL_ttf.h \
+ /usr/include/nlohmann/json.hpp /usr/include/c++/11/algorithm \
+ /usr/include/c++/11/utility /usr/include/c++/11/bits/stl_relops.h \
  /usr/include/c++/11/initializer_list /usr/include/c++/11/bits/stl_algo.h \
  /usr/include/c++/11/bits/algorithmfwd.h \
  /usr/include/c++/11/bits/stl_heap.h \
