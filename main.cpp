@@ -106,12 +106,7 @@ int main(int argc, char* argv[]) {
     if (!font) cout << "Font error: " << TTF_GetError() << endl;
 
     SDL_Color color = {255, 255, 255, 255}; // White
-    SDL_Surface* surface = TTF_RenderText_Solid(font, "Hello SDL2", color);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    
-    SDL_Rect dstRect = {100, 100, surface->w, surface->h}; // Position
-
-    SDL_FreeSurface(surface);
+    SDL_Texture* fpsTexture = nullptr; // Position
 
     int width, height;
     SDL_GetWindowSize(window, &width, &height);
@@ -122,6 +117,8 @@ int main(int argc, char* argv[]) {
 
     Uint32 last_time = 0;
     float delta = 0.0f;
+    short frameCount = 0;
+    int fps = 0;
 
     vector<vector<vector<short>>> draw_data;
     draw_data.reserve(2000);
@@ -138,6 +135,22 @@ int main(int argc, char* argv[]) {
     triangles_to_draw.reserve(2000); 
 
     while (running) {
+        frameCount++;
+
+        if (frameCount == 30) {
+            char fps_text[32];
+            sprintf(fps_text, "FPS: %d", fps);
+
+            if (fpsTexture != nullptr) {
+                SDL_DestroyTexture(fpsTexture);
+            }
+
+            SDL_Surface* surf = TTF_RenderText_Solid(font, fps_text, {255, 255, 255});
+            fpsTexture = SDL_CreateTextureFromSurface(renderer, surf);
+            SDL_FreeSurface(surf);
+
+            frameCount = 0;
+        }
         Uint32 current_time = SDL_GetTicks();
 
         delta = (current_time - last_time) / 1000.0f;
@@ -204,7 +217,7 @@ int main(int argc, char* argv[]) {
 
         player_rotation(0, 0) = clamp(player_rotation(0, 0), -max_pitch, max_pitch);
 
-        cout << (1.0f / delta) << endl;
+        fps = 1.0f / delta;
 
         draw_data.clear();
 
@@ -257,11 +270,18 @@ int main(int argc, char* argv[]) {
             SDL_RenderGeometry(renderer, NULL, tri.vertices, 3, NULL, 0);
         }
 
-        SDL_RenderCopy(renderer, texture, NULL, &dstRect);
+        if (fpsTexture != nullptr) {
+            int texW = 0;
+            int texH = 0;
+            SDL_QueryTexture(fpsTexture, NULL, NULL, &texW, &texH);
+            SDL_Rect dstRect = { 20, 20, texW, texH }; // Position at top-left
+            SDL_RenderCopy(renderer, fpsTexture, NULL, &dstRect);
+        }
+
         SDL_RenderPresent(renderer);
     }
 
-    SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(fpsTexture);
     TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
