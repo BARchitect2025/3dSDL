@@ -41,11 +41,54 @@ struct Triangle {
     double average_z;
 };
 
+namespace VecMath {
+    struct Vector3 {
+        double x, y, z;
+        Vector3 operator - (const Vector3& v) const { return {x - v.x, y - v.y, z - v.z}; }
+    };
+    
+    // Standard math helper functions
+    double dot(Vector3 a, Vector3 b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+    
+    Vector3 cross(Vector3 a, Vector3 b) {
+        return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
+    }
+    
+    bool RayTriangleIntersect(Vector3 rayOrigin, Vector3 rayVector, Vector3 v0, Vector3 v1, Vector3 v2, float& t, float& u, float& v) {
+        const float EPSILON = 0.0000001f;
+        Vector3 edge1 = v1 - v0;
+        Vector3 edge2 = v2 - v0;
+        Vector3 h = cross(rayVector, edge2);
+        float a = dot(edge1, h);
+    
+        // If 'a' is near zero, the ray is parallel to the triangle
+        if (a > -EPSILON && a < EPSILON) return false;
+    
+        float f = 1.0f / a;
+        Vector3 s = rayOrigin - v0;
+        u = f * dot(s, h);
+    
+        if (u < 0.0f || u > 1.0f) return false;
+    
+        Vector3 q = cross(s, edge1);
+        v = f * dot(rayVector, q);
+    
+        if (v < 0.0f || u + v > 1.0f) return false;
+    
+        // Calculate t to find where the intersection point is on the line
+        t = f * dot(edge2, q);
+    
+        return t > EPSILON; // Ray intersection
+    }
+}
+
 const short FOV = 94;
 const float PI = 3.1415;
 
 const double speed = 1600.0;
-const double rotation_speed = 1.0;
+const double rotation_speed = 1.5;
 
 int main(int argc, char* argv[]) {
     MatrixXd player_pos(1, 3);
@@ -137,7 +180,7 @@ int main(int argc, char* argv[]) {
     while (running) {
         frameCount++;
 
-        if (frameCount == 30) {
+        if (frameCount == 240) {
             char fps_text[32];
             sprintf(fps_text, "FPS: %d", fps);
 
@@ -151,6 +194,7 @@ int main(int argc, char* argv[]) {
 
             frameCount = 0;
         }
+        
         Uint32 current_time = SDL_GetTicks();
 
         delta = (current_time - last_time) / 1000.0f;
@@ -179,6 +223,41 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
+            }
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    int index = 0;
+                    int closest_index;
+                    
+                    VecMath::Vector3 ray_direction;
+                    MatrixXd mat(1, 3);
+
+                    mat = camera_matrix.transpose() * MatrixXd{0, 0, 1};
+
+                    float closest_hit = numeric_limits<float>::max();
+
+                    float dist, intersectX, intersectY;
+
+                    for (const auto& obj: objects) {
+                        for (const auto& triangle_indices: obj.indices) {
+                            VecMath::Vector3 v0 {obj.points[0][triangle_indices[0][0]]};
+                            VecMath::Vector3 v1 {obj.points[0][triangle_indices[0][1]]};
+                            VecMath::Vector3 v2 {obj.points[0][triangle_indices[0][2]]};
+
+                            float dist = VecMath::RayTriangleIntersect(
+                                VecMath::Vector3 {player_pos(0, 0), player_pos(0, 1), player_pos(0, 2)},
+                                VecMath::Vector3 {mat(0, 0), mat(0, 1), mat(0, 2)},
+                                v0, v1, v2, dist, intersectX, intersectY 
+                            );
+
+                            if (dist && dist < closest_hit) {
+                                closest_hit = dist;
+                                closest_index = index;
+                            }
+                        }
+                        index++;
+                    }
+                }
             }
         }
 
