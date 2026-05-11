@@ -227,12 +227,11 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_MOUSEBUTTONDOWN) {
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     int index = 0;
-                    int closest_index;
+                    int closest_index = -1;
                     
                     VecMath::Vector3 ray_direction;
-                    MatrixXd mat(1, 3);
 
-                    mat = camera_matrix.transpose() * MatrixXd{0, 0, 1};
+                    Vector3d mat = camera_matrix.transpose() * Vector3d(0, 0, 1);
 
                     float closest_hit = numeric_limits<float>::max();
 
@@ -244,10 +243,10 @@ int main(int argc, char* argv[]) {
                             VecMath::Vector3 v1 {obj.points[0][triangle_indices[0][1]]};
                             VecMath::Vector3 v2 {obj.points[0][triangle_indices[0][2]]};
 
-                            float dist = VecMath::RayTriangleIntersect(
+                            VecMath::RayTriangleIntersect(
                                 VecMath::Vector3 {player_pos(0, 0), player_pos(0, 1), player_pos(0, 2)},
-                                VecMath::Vector3 {mat(0, 0), mat(0, 1), mat(0, 2)},
-                                v0, v1, v2, dist, intersectX, intersectY 
+                                VecMath::Vector3 {mat(0), mat(0), mat(0)},
+                                v0, v1, v2, dist, intersectX, intersectY
                             );
 
                             if (dist && dist < closest_hit) {
@@ -257,6 +256,12 @@ int main(int argc, char* argv[]) {
                         }
                         index++;
                     }
+
+                    if (closest_index != -1) {
+                        objects.erase(objects.begin() + closest_index);
+                    }
+
+                    cout << "Index: " << closest_index << " Distance: " << dist << endl;
                 }
             }
         }
