@@ -231,25 +231,25 @@ int main(int argc, char* argv[]) {
                     
                     VecMath::Vector3 ray_direction;
 
-                    Vector3d mat = camera_matrix.transpose() * Vector3d(0, 0, 1);
+                    Vector3d mat = camera_matrix.transpose() * Vector3d(0, 0, -1);
 
                     float closest_hit = numeric_limits<float>::max();
 
-                    float dist, intersectX, intersectY;
+                    float dist = 0, intersectX, intersectY;
 
                     for (const auto& obj: objects) {
                         for (const auto& triangle_indices: obj.indices) {
-                            VecMath::Vector3 v0 {obj.points[0][triangle_indices[0][0]]};
-                            VecMath::Vector3 v1 {obj.points[0][triangle_indices[0][1]]};
-                            VecMath::Vector3 v2 {obj.points[0][triangle_indices[0][2]]};
+                            VecMath::Vector3 v0 {obj.points[triangle_indices[0][0]][0], obj.points[triangle_indices[0][0]][1], obj.points[triangle_indices[0][0]][2]};
+                            VecMath::Vector3 v1 {obj.points[triangle_indices[0][1]][0], obj.points[triangle_indices[0][1]][1], obj.points[triangle_indices[0][1]][2]};
+                            VecMath::Vector3 v2 {obj.points[triangle_indices[0][2]][0], obj.points[triangle_indices[0][2]][1], obj.points[triangle_indices[0][2]][2]};
 
                             VecMath::RayTriangleIntersect(
                                 VecMath::Vector3 {player_pos(0, 0), player_pos(0, 1), player_pos(0, 2)},
-                                VecMath::Vector3 {mat(0), mat(0), mat(0)},
+                                VecMath::Vector3 {mat(0), mat(1), mat(2)},
                                 v0, v1, v2, dist, intersectX, intersectY
                             );
 
-                            if (dist && dist < closest_hit) {
+                            if (dist != 0 && dist < closest_hit) {
                                 closest_hit = dist;
                                 closest_index = index;
                             }
