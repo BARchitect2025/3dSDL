@@ -91,16 +91,18 @@ const double speed = 1600.0;
 const double rotation_speed = 1.5;
 
 int main(int argc, char* argv[]) {
-    MatrixXd player_pos(1, 3);
-    MatrixXd player_rotation(1, 3);
+    Vector3d player_pos;
+    Vector3d player_rotation;
 
-    player_pos(0, 0) = 0;
-    player_pos(0, 1) = 0;
-    player_pos(0, 2) = 0;
+    int mouse_x, mouse_y;
 
-    player_rotation(0, 0) = 0;
-    player_rotation(0, 1) = 0;
-    player_rotation(0, 2) = 0;
+    player_pos(0) = 0;
+    player_pos(1) = 0;
+    player_pos(2) = 0;
+
+    player_rotation(0) = 0;
+    player_rotation(1) = 0;
+    player_rotation(2) = 0;
 
     vector<Mesh> objects;
 
@@ -142,6 +144,8 @@ int main(int argc, char* argv[]) {
 
     TTF_Init();
 
+    SDL_ShowCursor(SDL_DISABLE);
+
     SDL_Window* window = SDL_CreateWindow("3dSDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
@@ -166,7 +170,7 @@ int main(int argc, char* argv[]) {
     vector<vector<vector<short>>> draw_data;
     draw_data.reserve(2000);
 
-    MatrixXd move(1, 3);
+    Vector3d move;
 
     MatrixXd rot_x(3, 3);
     MatrixXd rot_y(3, 3);
@@ -200,10 +204,10 @@ int main(int argc, char* argv[]) {
         delta = (current_time - last_time) / 1000.0f;
         last_time = current_time;
 
-        cos_y = cos(-player_rotation(0, 1));
-        sin_y = sin(-player_rotation(0, 1));
-        cos_x = cos(-player_rotation(0, 0));
-        sin_x = sin(-player_rotation(0, 0));
+        cos_y = cos(-player_rotation(1));
+        sin_y = sin(-player_rotation(1));
+        cos_x = cos(-player_rotation(0));
+        sin_x = sin(-player_rotation(0));
 
         rot_y(0, 0) = cos_y;  rot_y(0, 1) = 0; rot_y(0, 2) = sin_y;
         rot_y(1, 0) = 0;      rot_y(1, 1) = 1; rot_y(1, 2) = 0;
@@ -215,10 +219,9 @@ int main(int argc, char* argv[]) {
 
         camera_matrix = rot_x * rot_y;
 
-
-        move(0, 0) = 0;
-        move(0, 1) = 0;
-        move(0, 2) = 0;
+        move(0) = 0;
+        move(1) = 0;
+        move(2) = 0;
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -244,7 +247,7 @@ int main(int argc, char* argv[]) {
                             VecMath::Vector3 v2 {obj.points[triangle_indices[0][2]][0], obj.points[triangle_indices[0][2]][1], obj.points[triangle_indices[0][2]][2]};
 
                             VecMath::RayTriangleIntersect(
-                                VecMath::Vector3 {player_pos(0, 0), player_pos(0, 1), player_pos(0, 2)},
+                                VecMath::Vector3 {player_pos(0), player_pos(1), player_pos(2)},
                                 VecMath::Vector3 {mat(0), mat(1), mat(2)},
                                 v0, v1, v2, dist, intersectX, intersectY
                             );
@@ -264,23 +267,29 @@ int main(int argc, char* argv[]) {
                     cout << "Index: " << closest_index << " Distance: " << dist << endl;
                 }
             }
+            if (event.type == SDL_MOUSEMOTION) {
+                mouse_x = event.motion.x;
+                mouse_y = event.motion.y;
+            }
         }
+
+        SDL_WarpMouseInWindow(window, width / 2, height / 2);
 
         const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
 
         if (keyboard[SDL_SCANCODE_ESCAPE]) running = false;
 
-        float yaw = player_rotation(0, 1);
-        MatrixXd forward(1, 3);
-        MatrixXd right(1, 3);
+        float yaw = player_rotation(1);
+        Vector3d forward;
+        Vector3d right;
 
-        forward(0, 0) = sin(yaw);
-        forward(0, 1) = 0;
-        forward(0, 2) = cos(yaw);
+        forward(0) = sin(yaw);
+        forward(1) = 0;
+        forward(2) = cos(yaw);
 
-        right(0, 0) = cos(yaw);
-        right(0, 1) = 0;
-        right(0, 2) = -sin(yaw);
+        right(0) = cos(yaw);
+        right(1) = 0;
+        right(2) = -sin(yaw);
 
         if (keyboard[SDL_SCANCODE_W]) move += forward;
         if (keyboard[SDL_SCANCODE_S]) move -= forward;
@@ -288,18 +297,21 @@ int main(int argc, char* argv[]) {
         if (keyboard[SDL_SCANCODE_D]) move += right;
 
         player_pos += move * delta * speed;
-        if (!(player_pos(0, 0) > -4800 && player_pos(0, 0) < 4800 && player_pos(0, 2) > -4800 && player_pos(0, 2) < 4800)) {
+        if (!(player_pos(0) > -4800 && player_pos(0) < 4800 && player_pos(2) > -4800 && player_pos(2) < 4800)) {
             player_pos -= move * delta * speed;
         }
 
-        if (keyboard[SDL_SCANCODE_LEFT]) player_rotation(0, 1) -= rotation_speed * delta;
-        if (keyboard[SDL_SCANCODE_RIGHT]) player_rotation(0, 1) += rotation_speed * delta;
-        if (keyboard[SDL_SCANCODE_UP]) player_rotation(0, 0) += rotation_speed * delta;
-        if (keyboard[SDL_SCANCODE_DOWN]) player_rotation(0, 0) -= rotation_speed * delta;
+        if (keyboard[SDL_SCANCODE_LEFT]) player_rotation(1) -= rotation_speed * delta;
+        if (keyboard[SDL_SCANCODE_RIGHT]) player_rotation(1) += rotation_speed * delta;
+        if (keyboard[SDL_SCANCODE_UP]) player_rotation(0) += rotation_speed * delta;
+        if (keyboard[SDL_SCANCODE_DOWN]) player_rotation(0) -= rotation_speed * delta;
+
+        player_rotation(1) += (mouse_x - (width / 2)) * delta * rotation_speed;
+        player_rotation(0) -= (mouse_y - (height / 2)) * delta * rotation_speed;
 
         double max_pitch = 89.0 * (PI / 180.0);
 
-        player_rotation(0, 0) = clamp(player_rotation(0, 0), -max_pitch, max_pitch);
+        player_rotation(0) = clamp(player_rotation(0), -max_pitch, max_pitch);
 
         fps = 1.0f / delta;
 
@@ -318,9 +330,9 @@ int main(int argc, char* argv[]) {
                 bool visible = true;
             
                 for (int j = 0; j < 3; j++) {
-                    double worldX = obj.points[index_data[0][j]][0] - player_pos(0, 0);
-                    double worldY = obj.points[index_data[0][j]][1] - player_pos(0, 1);
-                    double worldZ = obj.points[index_data[0][j]][2] - player_pos(0, 2);
+                    double worldX = obj.points[index_data[0][j]][0] - player_pos(0);
+                    double worldY = obj.points[index_data[0][j]][1] - player_pos(1);
+                    double worldZ = obj.points[index_data[0][j]][2] - player_pos(2);
                 
                     double relX = camera_matrix(0, 0) * worldX + camera_matrix(0, 1) * worldY + camera_matrix(0, 2) * worldZ;
                     double relY = camera_matrix(1, 0) * worldX + camera_matrix(1, 1) * worldY + camera_matrix(1, 2) * worldZ;
