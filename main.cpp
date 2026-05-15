@@ -1,5 +1,4 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL2_framerate.h>
 #include <SDL2/SDL_ttf.h>
 
@@ -88,7 +87,7 @@ const short FOV = 94;
 const float PI = 3.1415;
 
 const double speed = 1600.0;
-const double rotation_speed = 1.5;
+const double rotation_speed = 0.1;
 
 int main(int argc, char* argv[]) {
     Vector3d player_pos;
@@ -192,7 +191,7 @@ int main(int argc, char* argv[]) {
                 SDL_DestroyTexture(fpsTexture);
             }
 
-            SDL_Surface* surf = TTF_RenderText_Solid(font, fps_text, {255, 255, 255});
+            SDL_Surface* surf = TTF_RenderText_Solid(font, fps_text, {0, 0, 0});
             fpsTexture = SDL_CreateTextureFromSurface(renderer, surf);
             SDL_FreeSurface(surf);
 
@@ -234,7 +233,7 @@ int main(int argc, char* argv[]) {
                     
                     VecMath::Vector3 ray_direction;
 
-                    Vector3d mat = camera_matrix.transpose() * Vector3d(0, 0, -1);
+                    Vector3d mat = camera_matrix.transpose() * Vector3d(0, 0, 1);
 
                     float closest_hit = numeric_limits<float>::max();
 
@@ -246,13 +245,13 @@ int main(int argc, char* argv[]) {
                             VecMath::Vector3 v1 {obj.points[triangle_indices[0][1]][0], obj.points[triangle_indices[0][1]][1], obj.points[triangle_indices[0][1]][2]};
                             VecMath::Vector3 v2 {obj.points[triangle_indices[0][2]][0], obj.points[triangle_indices[0][2]][1], obj.points[triangle_indices[0][2]][2]};
 
-                            VecMath::RayTriangleIntersect(
+                            bool hit = VecMath::RayTriangleIntersect(
                                 VecMath::Vector3 {player_pos(0), player_pos(1), player_pos(2)},
                                 VecMath::Vector3 {mat(0), mat(1), mat(2)},
                                 v0, v1, v2, dist, intersectX, intersectY
                             );
 
-                            if (dist != 0 && dist < closest_hit) {
+                            if (hit && dist < closest_hit) {
                                 closest_hit = dist;
                                 closest_index = index;
                             }
@@ -301,15 +300,15 @@ int main(int argc, char* argv[]) {
             player_pos -= move * delta * speed;
         }
 
-        if (keyboard[SDL_SCANCODE_LEFT]) player_rotation(1) -= rotation_speed * delta;
-        if (keyboard[SDL_SCANCODE_RIGHT]) player_rotation(1) += rotation_speed * delta;
-        if (keyboard[SDL_SCANCODE_UP]) player_rotation(0) += rotation_speed * delta;
-        if (keyboard[SDL_SCANCODE_DOWN]) player_rotation(0) -= rotation_speed * delta;
+        if (keyboard[SDL_SCANCODE_LEFT]) player_rotation(1) -= rotation_speed * delta * 15.0f;
+        if (keyboard[SDL_SCANCODE_RIGHT]) player_rotation(1) += rotation_speed * delta * 15.0f;
+        if (keyboard[SDL_SCANCODE_UP]) player_rotation(0) += rotation_speed * delta * 15.0f;
+        if (keyboard[SDL_SCANCODE_DOWN]) player_rotation(0) -= rotation_speed * delta * 15.0f;
 
         player_rotation(1) += (mouse_x - (width / 2)) * delta * rotation_speed;
         player_rotation(0) -= (mouse_y - (height / 2)) * delta * rotation_speed;
 
-        double max_pitch = 89.0 * (PI / 180.0);
+        double max_pitch = 90.0 * (PI / 180.0);
 
         player_rotation(0) = clamp(player_rotation(0), -max_pitch, max_pitch);
 
@@ -365,6 +364,25 @@ int main(int argc, char* argv[]) {
         for (const auto& tri : triangles_to_draw) {
             SDL_RenderGeometry(renderer, NULL, tri.vertices, 3, NULL, 0);
         }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+        SDL_Rect horizontal_crosshair;
+        SDL_Rect vertical_crosshair;
+
+        horizontal_crosshair.x = width / 2 - 10;
+        horizontal_crosshair.y = height / 2 - 1;
+        horizontal_crosshair.w = ((width / 2) - horizontal_crosshair.x) * 2;
+        horizontal_crosshair.h = 2;
+
+        vertical_crosshair.x = width / 2 - 1;
+        vertical_crosshair.y = height / 2 - 10;
+        vertical_crosshair.w = 2;
+        vertical_crosshair.h = ((height / 2) - vertical_crosshair.y) * 2;
+
+
+        SDL_RenderFillRect(renderer, &horizontal_crosshair);
+        SDL_RenderFillRect(renderer, &vertical_crosshair);
 
         if (fpsTexture != nullptr) {
             int texW = 0;
