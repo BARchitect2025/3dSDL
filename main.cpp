@@ -86,8 +86,8 @@ namespace VecMath {
 const short FOV = 94;
 const float PI = 3.1415;
 
-const double speed = 1600.0;
-const double rotation_speed = 0.1;
+double speed = 1600.0;
+double rotation_speed = 0.1;
 
 int main(int argc, char* argv[]) {
     Vector3d player_pos;
@@ -106,34 +106,34 @@ int main(int argc, char* argv[]) {
     vector<Mesh> objects;
 
     // Input settings and model files
-    ifstream settings_file("data/settings.json");
-    json settings = json::parse(settings_file);
+    ifstream file("data/settings.json");
+    json settings = json::parse(file);
+    file.close();
     
     short draw_dist = settings["draw_dist"];
 
-    settings_file.close();
+    file.open("data/floor.json");
+    json floor_data = json::parse(file);
+    file.close();
 
-    ifstream floor_file("data/floor.json");
-    json floor_data = json::parse(floor_file);
+    file.open("data/dark_floor.json");
+    json dark_floor_data = json::parse(file);
+    file.close();
 
-    floor_file.close();
-
-    ifstream dark_floor_file("data/dark_floor.json");
-    json dark_floor_data = json::parse(dark_floor_file);
-
-    dark_floor_file.close();
+    file.open("data/dirt.json");
+    json dirt_data = json::parse(file);
+    file.close();
 
     // Get points and indices from the files that were input
-    vector<vector<double>> floor_points = floor_data["points"];
-    vector<vector<vector<double>>> floor_indices = floor_data["indices"];
-    vector<vector<vector<double>>> dark_floor_indices = dark_floor_data["indices"];
 
-    for (int i = 0; i < 24; i++) {
-        for (int j = 0; j < 24; j++) {
-            Mesh block = (((i + j) % 2 == 0)? (Mesh(floor_points, floor_indices, floor_data["type"], 400 * j, 0, -400 * i)): (Mesh(floor_points, dark_floor_indices, floor_data["type"], 400 * j, 0, -400 * i)));
+    for (int i = 0; i < 96; i++) {
+        for (int j = 0; j < 96; j++) {
+            Mesh block = (((i + j) % 2 == 0)? (Mesh(floor_data["points"], floor_data["indices"], floor_data["type"], 400 * j - 19200, 0, -400 * i + 19200)): (Mesh(floor_data["points"], dark_floor_data["indices"], floor_data["type"], 400 * j - 19200, 0, -400 * i + 19200)));
             objects.push_back(block);
         }
     }
+
+    cout << objects.size() << endl;
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
     while (running) {
         frameCount++;
 
-        if (frameCount == 240) {
+        if (frameCount == 60) {
             char fps_text[32];
             sprintf(fps_text, "FPS: %d", fps);
 
@@ -294,11 +294,13 @@ int main(int argc, char* argv[]) {
         if (keyboard[SDL_SCANCODE_S]) move -= forward;
         if (keyboard[SDL_SCANCODE_A]) move -= right;
         if (keyboard[SDL_SCANCODE_D]) move += right;
+        if (keyboard[SDL_SCANCODE_LCTRL]) speed = 3200.0;
+        else speed = 1600.0;
 
         player_pos += move * delta * speed;
-        if (!(player_pos(0) > -4800 && player_pos(0) < 4800 && player_pos(2) > -4800 && player_pos(2) < 4800)) {
-            player_pos -= move * delta * speed;
-        }
+        // if (!(player_pos(0) > -4800 && player_pos(0) < 4800 && player_pos(2) > -4800 && player_pos(2) < 4800)) {
+        //     player_pos -= move * delta * speed;
+        // }
 
         if (keyboard[SDL_SCANCODE_LEFT]) player_rotation(1) -= rotation_speed * delta * 15.0f;
         if (keyboard[SDL_SCANCODE_RIGHT]) player_rotation(1) += rotation_speed * delta * 15.0f;
