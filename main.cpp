@@ -13,6 +13,8 @@ using json = nlohmann::json;
 #include <eigen3/Eigen/Dense>
 #include <algorithm>
 
+#include <omp.h>
+
 using namespace std;
 using namespace Eigen;
 
@@ -324,40 +326,59 @@ int main(int argc, char* argv[]) {
         triangles_to_draw.clear();
         float focal_length = (width / 2.0f) / tan((FOV / 2.0f) * (PI / 180.0f));
 
-        for (const auto& obj : objects) {
-            for (const auto& index_data : obj.indices) {
-                Triangle tri;
-                double z_sum = 0;
-                bool visible = true;
+        #pragma omp parallel
+        {
+            std::vector<Triangle> local_triangles;
+        
+            #pragma omp for schedule(dynamic)
+            for (size_t i = 0; i < objects.size(); ++i) {
+                const auto& obj = objects[i];
             
-                for (int j = 0; j < 3; j++) {
-                    double worldX = obj.points[index_data[0][j]][0] - player_pos(0);
-                    double worldY = obj.points[index_data[0][j]][1] - player_pos(1);
-                    double worldZ = obj.points[index_data[0][j]][2] - player_pos(2);
+                for (const auto& index_data : obj.indices) {
+                    Triangle tri;
+                    double z_sum = 0;
+                    bool visible = true;
                 
-                    double relX = camera_matrix(0, 0) * worldX + camera_matrix(0, 1) * worldY + camera_matrix(0, 2) * worldZ;
-                    double relY = camera_matrix(1, 0) * worldX + camera_matrix(1, 1) * worldY + camera_matrix(1, 2) * worldZ;
-                    double relZ = camera_matrix(2, 0) * worldX + camera_matrix(2, 1) * worldY + camera_matrix(2, 2) * worldZ;
+                    for (int j = 0; j < 3; j++) {
+                        double worldX = obj.points[index_data[0][j]][0] - player_pos(0);
+                        double worldY = obj.points[index_data[0][j]][1] - player_pos(1);
+                        double worldZ = obj.points[index_data[0][j]][2] - player_pos(2);
                 
-                    if (relZ > 10 && relZ < draw_dist) {
-                        tri.vertices[j].position.x = relX * (focal_length / relZ) + width / 2.0f;
-                        tri.vertices[j].position.y = relY * (focal_length / relZ) + height / 2.0f;
-                        tri.vertices[j].color = { (Uint8)index_data[1][0], (Uint8)index_data[1][1], (Uint8)index_data[1][2], 255 };
-                        tri.vertices[j].tex_coord = {0, 0};
-                        z_sum += relZ;
-                    } else {
-                        visible = false;
-                        break;
+                        double relX = camera_matrix(0, 0) * worldX + camera_matrix(0, 1) * worldY + camera_matrix(0, 2) * worldZ;
+                        double relY = camera_matrix(1, 0) * worldX + camera_matrix(1, 1) * worldY + camera_matrix(1, 2) * worldZ;
+                        double relZ = camera_matrix(2, 0) * worldX + camera_matrix(2, 1) * worldY + camera_matrix(2, 2) * worldZ;
+                
+                        if (relZ > 10 && relZ < draw_dist) {
+                            tri.vertices[j].position.x = relX * (focal_length / relZ) + width / 2.0f;
+                            tri.vertices[j].position.y = relY * (focal_length / relZ) + height / 2.0f;
+                            tri.vertices[j].color = { (Uint8)index_data[1][0], (Uint8)index_data[1][1], (Uint8)index_data[1][2], 255 };
+                            tri.vertices[j].tex_coord = {0, 0};
+                            z_sum += relZ;
+                        } else {
+                            visible = false;
+                            break;
+                        }
+                    }
+                
+                    if (visible) {
+                        tri.average_z = z_sum / 3.0;
+
+                        local_triangles.push_back(tri); 
                     }
                 }
-            
-                if (visible) {
-                    tri.average_z = z_sum / 3.0;
-                    triangles_to_draw.push_back(tri);
-                }
+            }
+        
+            #pragma omp critical
+            {
+                // 4. Safely merge the local vectors into the global vector.
+                // This lock happens only ONCE per CPU thread, instead of 18,000+ times!
+                triangles_to_draw.insert(
+                    triangles_to_draw.end(), 
+                    local_triangles.begin(), 
+                    local_triangles.end()
+                );
             }
         }
-
 
         sort(triangles_to_draw.begin(), triangles_to_draw.end(), [](const Triangle& a, const Triangle& b) {
             return a.average_z > b.average_z; 

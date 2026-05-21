@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/MySDLGame.dir/main.cpp.o -o MySDLGame  /usr/lib/x86_64-linux-gnu/libSDL2.so -lSDL2_gfx -lSDL2_ttf 
+/usr/bin/g++ -g CMakeFiles/MySDLGame.dir/main.cpp.o -o MySDLGame  /usr/lib/x86_64-linux-gnu/libSDL2.so -lSDL2_gfx -lSDL2_ttf /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.a 

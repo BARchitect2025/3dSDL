@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/barchitect/Desktop/Programming/3dSDL/build",
+  "command": "/usr/bin/g++  -isystem /usr/include/SDL2 -g -fopenmp -o CMakeFiles/MySDLGame.dir/main.cpp.o -c /home/barchitect/Desktop/Programming/3dSDL/main.cpp",
+  "file": "/home/barchitect/Desktop/Programming/3dSDL/main.cpp",
+  "output": "CMakeFiles/MySDLGame.dir/main.cpp.o"
+}
+]

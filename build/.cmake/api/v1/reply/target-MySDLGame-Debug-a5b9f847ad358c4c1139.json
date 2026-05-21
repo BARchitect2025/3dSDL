@@ -11,11 +11,14 @@
 		"commands" : 
 		[
 			"add_executable",
-			"target_link_libraries"
+			"target_link_libraries",
+			"set_property",
+			"find_package"
 		],
 		"files" : 
 		[
-			"CMakeLists.txt"
+			"CMakeLists.txt",
+			"/usr/share/cmake-3.28/Modules/FindOpenMP.cmake"
 		],
 		"nodes" : 
 		[
@@ -33,12 +36,38 @@
 				"file" : 0,
 				"line" : 12,
 				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 4,
+				"parent" : 0
+			},
+			{
+				"file" : 1,
+				"parent" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 619,
+				"parent" : 4
 			}
 		]
 	},
 	"compileGroups" : 
 	[
 		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-fopenmp"
+				}
+			],
 			"includes" : 
 			[
 				{
@@ -60,6 +89,10 @@
 		"commandFragments" : 
 		[
 			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
 				"fragment" : "",
 				"role" : "flags"
 			},
@@ -76,6 +109,16 @@
 			{
 				"backtrace" : 2,
 				"fragment" : "-lSDL2_ttf",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "/usr/lib/gcc/x86_64-linux-gnu/13/libgomp.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libpthread.a",
 				"role" : "libraries"
 			}
 		],

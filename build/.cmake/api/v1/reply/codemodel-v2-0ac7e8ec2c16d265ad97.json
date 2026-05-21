@@ -6,10 +6,10 @@
 			[
 				{
 					"build" : ".",
-					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
 					{
-						"string" : "3.10"
+						"string" : "3.12"
 					},
 					"projectIndex" : 0,
 					"source" : ".",
@@ -19,7 +19,7 @@
 					]
 				}
 			],
-			"name" : "",
+			"name" : "Debug",
 			"projects" : 
 			[
 				{
@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "MySDLGame::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-MySDLGame-2511e74a724fa7ba9e44.json",
+					"jsonFile" : "target-MySDLGame-Debug-a5b9f847ad358c4c1139.json",
 					"name" : "MySDLGame",
 					"projectIndex" : 0
 				}
@@ -55,6 +55,6 @@
 	"version" : 
 	{
 		"major" : 2,
-		"minor" : 3
+		"minor" : 6
 	}
 }

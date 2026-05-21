@@ -39,11 +39,11 @@
 			[
 				{
 					"name" : "HELPSTRING",
-					"value" : "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ..."
+					"value" : "No help, variable specified on the command line."
 				}
 			],
 			"type" : "STRING",
-			"value" : ""
+			"value" : "Debug"
 		},
 		{
 			"name" : "CMAKE_CACHEFILE_DIR",
@@ -79,7 +79,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "22"
+			"value" : "28"
 		},
 		{
 			"name" : "CMAKE_CACHE_PATCH_VERSION",
@@ -91,7 +91,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "1"
+			"value" : "3"
 		},
 		{
 			"name" : "CMAKE_COLOR_MAKEFILE",
@@ -155,11 +155,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "CXX compiler"
+					"value" : "No help, variable specified on the command line."
 				}
 			],
-			"type" : "STRING",
-			"value" : "/usr/bin/c++"
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/g++"
 		},
 		{
 			"name" : "CMAKE_CXX_COMPILER_AR",
@@ -283,11 +283,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "C compiler"
+					"value" : "No help, variable specified on the command line."
 				}
 			],
-			"type" : "STRING",
-			"value" : "/usr/bin/cc"
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/gcc"
 		},
 		{
 			"name" : "CMAKE_C_COMPILER_AR",
@@ -519,11 +519,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "Enable/Disable output of compile commands during generation."
+					"value" : "No help, variable specified on the command line."
 				}
 			],
 			"type" : "BOOL",
-			"value" : ""
+			"value" : "TRUE"
 		},
 		{
 			"name" : "CMAKE_EXTRA_GENERATOR",
@@ -895,7 +895,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/share/cmake-3.22"
+			"value" : "/usr/share/cmake-3.28"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1150,6 +1150,42 @@
 			"value" : "FALSE"
 		},
 		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_OpenMP",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding OpenMP"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[TRUE][TRUE][c ][v4.5()]"
+		},
+		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_OpenMP_C",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding OpenMP_C"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[-fopenmp][/usr/lib/gcc/x86_64-linux-gnu/13/libgomp.so][/usr/lib/x86_64-linux-gnu/libpthread.a][v4.5()]"
+		},
+		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_OpenMP_CXX",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding OpenMP_CXX"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[-fopenmp][/usr/lib/gcc/x86_64-linux-gnu/13/libgomp.so][/usr/lib/x86_64-linux-gnu/libpthread.a][v4.5()]"
+		},
+		{
 			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_SDL2_ttf",
 			"properties" : 
 			[
@@ -1159,7 +1195,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[/usr/lib/x86_64-linux-gnu/libSDL2_ttf.so][/usr/include/SDL2][v2.0.18()]"
+			"value" : "[/usr/lib/x86_64-linux-gnu/libSDL2_ttf.so][/usr/include/SDL2][v2.22.0()]"
 		},
 		{
 			"name" : "MySDLGame_BINARY_DIR",
@@ -1196,6 +1232,174 @@
 			],
 			"type" : "STATIC",
 			"value" : "/home/barchitect/Desktop/Programming/3dSDL"
+		},
+		{
+			"name" : "OpenMP_COMPILE_RESULT_CXX_fopenmp",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Result of TRY_COMPILE"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "TRUE"
+		},
+		{
+			"name" : "OpenMP_COMPILE_RESULT_C_fopenmp",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Result of TRY_COMPILE"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "TRUE"
+		},
+		{
+			"name" : "OpenMP_CXX_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "CXX compiler flags for OpenMP parallelization"
+				}
+			],
+			"type" : "STRING",
+			"value" : "-fopenmp"
+		},
+		{
+			"name" : "OpenMP_CXX_LIB_NAMES",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "CXX compiler libraries for OpenMP parallelization"
+				}
+			],
+			"type" : "STRING",
+			"value" : "gomp;pthread"
+		},
+		{
+			"name" : "OpenMP_CXX_SPEC_DATE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "CXX compiler's OpenMP specification date"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "201511"
+		},
+		{
+			"name" : "OpenMP_C_FLAGS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "C compiler flags for OpenMP parallelization"
+				}
+			],
+			"type" : "STRING",
+			"value" : "-fopenmp"
+		},
+		{
+			"name" : "OpenMP_C_LIB_NAMES",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "C compiler libraries for OpenMP parallelization"
+				}
+			],
+			"type" : "STRING",
+			"value" : "gomp;pthread"
+		},
+		{
+			"name" : "OpenMP_C_SPEC_DATE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "C compiler's OpenMP specification date"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "201511"
+		},
+		{
+			"name" : "OpenMP_SPECTEST_CXX_",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Result of TRY_COMPILE"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "TRUE"
+		},
+		{
+			"name" : "OpenMP_SPECTEST_C_",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Result of TRY_COMPILE"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "TRUE"
+		},
+		{
+			"name" : "OpenMP_gomp_LIBRARY",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to the gomp library for OpenMP"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/lib/gcc/x86_64-linux-gnu/13/libgomp.so"
+		},
+		{
+			"name" : "OpenMP_pthread_LIBRARY",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to the pthread library for OpenMP"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/lib/x86_64-linux-gnu/libpthread.a"
 		},
 		{
 			"name" : "SDL2_DIR",
