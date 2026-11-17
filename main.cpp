@@ -150,11 +150,13 @@ int main(int argc, char* argv[]) {
     SDL_Window* window = SDL_CreateWindow("3dSDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+    // Initialization done
+
     TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28);
     if (!font) cout << "Font error: " << TTF_GetError() << endl;
 
     SDL_Color color = {255, 255, 255, 255}; // White
-    SDL_Texture* fpsTexture = nullptr; // Position
+    SDL_Texture* fpsTexture = nullptr;
 
     int width, height;
     SDL_GetWindowSize(window, &width, &height);
@@ -242,6 +244,7 @@ int main(int argc, char* argv[]) {
                     float dist = 0, intersectX, intersectY;
 
                     for (const auto& obj: objects) {
+                        // Raycast to remove things
                         for (const auto& triangle_indices: obj.indices) {
                             VecMath::Vector3 v0 {obj.points[triangle_indices[0][0]][0], obj.points[triangle_indices[0][0]][1], obj.points[triangle_indices[0][0]][2]};
                             VecMath::Vector3 v1 {obj.points[triangle_indices[0][1]][0], obj.points[triangle_indices[0][1]][1], obj.points[triangle_indices[0][1]][2]};
@@ -274,6 +277,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        // Move mouse to screen center
         SDL_WarpMouseInWindow(window, width / 2, height / 2);
 
         const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
@@ -292,6 +296,7 @@ int main(int argc, char* argv[]) {
         right(1) = 0;
         right(2) = -sin(yaw);
 
+        // Player movement
         if (keyboard[SDL_SCANCODE_W]) move += forward;
         if (keyboard[SDL_SCANCODE_S]) move -= forward;
         if (keyboard[SDL_SCANCODE_A]) move -= right;
@@ -304,6 +309,7 @@ int main(int argc, char* argv[]) {
         //     player_pos -= move * delta * speed;
         // }
 
+        // Player rotation with arrow keys
         if (keyboard[SDL_SCANCODE_LEFT]) player_rotation(1) -= rotation_speed * delta * 15.0f;
         if (keyboard[SDL_SCANCODE_RIGHT]) player_rotation(1) += rotation_speed * delta * 15.0f;
         if (keyboard[SDL_SCANCODE_UP]) player_rotation(0) += rotation_speed * delta * 15.0f;
@@ -329,7 +335,8 @@ int main(int argc, char* argv[]) {
         #pragma omp parallel
         {
             std::vector<Triangle> local_triangles;
-        
+
+            // Multithread it! Speedy!
             #pragma omp for schedule(dynamic)
             for (size_t i = 0; i < objects.size(); ++i) {
                 const auto& obj = objects[i];
@@ -338,7 +345,8 @@ int main(int argc, char* argv[]) {
                     Triangle tri;
                     double z_sum = 0;
                     bool visible = true;
-                
+
+                    // Projection math
                     for (int j = 0; j < 3; j++) {
                         double worldX = obj.points[index_data[0][j]][0] - player_pos(0);
                         double worldY = obj.points[index_data[0][j]][1] - player_pos(1);
@@ -370,8 +378,7 @@ int main(int argc, char* argv[]) {
         
             #pragma omp critical
             {
-                // 4. Safely merge the local vectors into the global vector.
-                // This lock happens only ONCE per CPU thread, instead of 18,000+ times!
+                // Merge vectors
                 triangles_to_draw.insert(
                     triangles_to_draw.end(), 
                     local_triangles.begin(), 
@@ -380,10 +387,12 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        // Sort by z for rendering closer tris first
         sort(triangles_to_draw.begin(), triangles_to_draw.end(), [](const Triangle& a, const Triangle& b) {
             return a.average_z > b.average_z; 
         });
 
+        // Render sorted tris
         for (const auto& tri : triangles_to_draw) {
             SDL_RenderGeometry(renderer, NULL, tri.vertices, 3, NULL, 0);
         }
